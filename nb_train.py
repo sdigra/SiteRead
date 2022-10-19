@@ -1,18 +1,28 @@
 # MUSICMA tutorial: https://muscima.readthedocs.io/en/latest/Tutorial.html
 # imports important 
+# %%
 import os
 from muscima.io import parse_cropobject_list
 import itertools
 import numpy
 import matplotlib.pyplot as plt
-
-CROPOBJECT_DIR = os.path.join(os.environ['HOME'], './musicma_training_set/data/cropobjects_withstaff')
+from PIL import Image
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn import metrics
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+# CROPOBJECT_DIR = os.path.join(os.environ['HOME'], './musicma_training_set/data/cropobjects_withstaff')
+CROPOBJECT_DIR = './musicma_training_set/data/cropobjects_withstaff'
 cropobject_fnames = [os.path.join(CROPOBJECT_DIR, f) for f in os.listdir(CROPOBJECT_DIR)]
 docs = [parse_cropobject_list(f) for f in cropobject_fnames]
 
 # Bear in mind that the outlinks are integers, only valid within the same document.
 # Therefore, we define a function per-document, not per-dataset.
 
+# %%
 def extract_notes_from_doc(cropobjects):
     """Finds all ``(full-notehead, stem)`` pairs that form
     quarter or half notes. Returns two lists of CropObject tuples:
@@ -53,6 +63,7 @@ qns_and_hns = [extract_notes_from_doc(cropobjects) for cropobjects in docs]
 qns = list(itertools.chain(*[qn for qn, hn in qns_and_hns]))
 hns = list(itertools.chain(*[hn for qn, hn in qns_and_hns]))
 
+# %%
 def get_image(cropobjects, margin=1):
     """Paste the cropobjects' mask onto a shared canvas.
     There will be a given margin of background on the edges."""
@@ -80,28 +91,50 @@ def get_image(cropobjects, margin=1):
     canvas[canvas > 0] = 1
     return canvas
 
-qn_images = [get_image(qn) for qn in qns]
-hn_images = [get_image(hn) for hn in hns]
+qn_images = [[get_image(qn) for qn in qns], [0] *len(qns)]
+hn_images = [[get_image(hn) for hn in hns], [1] *len(hns)]
 
-def show_mask(mask):
-    plt.imshow(mask, cmap='gray_r', interpolation='nearest')
-    plt.show()
+# %%
+data = np.array(qn_images[0] + hn_images[0], dtype=object)
 
-def show_masks(masks, row_length=5):
-    n_masks = len(masks)
-    n_rows = n_masks // row_length + 1
-    n_cols = min(n_masks, row_length)
-    fig = plt.figure()
-    for i, mask in enumerate(masks):
-        plt.subplot(n_rows, n_cols, i+1)
-        plt.imshow(mask, cmap='gray_r', interpolation='nearest')
-    # Let's remove the axis labels, they clutter the image.
-    for ax in fig.axes:
-        ax.set_yticklabels([])
-        ax.set_xticklabels([])
-        ax.set_yticks([])
-        ax.set_xticks([])
-    plt.show()
+images_temp = []
+for i in range(len(data)):
+    data[i] = np.pad(data[i], [(0, 205-data[i].shape[0]), (0, 70-data[i].shape[1])], mode='constant')
+    images_temp.append(data[i])
 
-show_masks(qn_images[:25])
-show_masks(hn_images[:25])
+# %%
+images = np.array(images_temp)
+targets = np.array(qn_images[1] + hn_images[1])
+
+rng = np.random.default_rng()
+indices = np.arange(images.shape[0])
+rng.shuffle(indices)
+images = images[indices]
+targets = targets[indices]
+
+notes = images.reshape((len(images), -1))
+X_train, X_test, y_train, y_test = train_test_split(
+    notes, targets, test_size=0.5, shuffle=False)
+
+GNB_classifier = GaussianNB()
+GNB_classifier.fit(X_train, y_train)
+predicted = GNB_classifier.predict(X_test)
+_, axes = plt.subplots(2, 10)
+images_and_labels = list(zip(images, targets))
+for ax, (image, label) in zip(axes[0, :], images_and_labels[:10]):
+    ax.set_axis_off()
+    ax.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
+    ax.set_title('T: %i' % label)
+    
+images_and_predictions = list(zip(images[len(images) // 2:], predicted))
+for ax, (image, prediction) in zip(axes[1, :], images_and_predictions[:10]):
+    ax.set_axis_off()
+    ax.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
+    ax.set_title('P: %i' % prediction)
+print("\nClassification report for classifier %s:\n%s\n" % (GNB_classifier, metrics.classification_report(y_test, predicted)))
+disp = metrics.plot_confusion_matrix(GNB_classifier, X_test, y_test)
+disp.figure_.suptitle("Confusion Matrix")
+print("\nConfusion matrix:\n%s" % disp.confusion_matrix)
+print("\nAccuracy of the Algorithm: ", GNB_classifier.score(X_test, y_test))
+plt.show()
+# %%
