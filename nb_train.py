@@ -60,7 +60,7 @@ def extract_notes_from_doc(cropobjects):
                         name = 'qn'
                     else:
                         name = 'hn'
-            elif _has_stem and _has_flag:
+            elif _has_stem and (_has_flag or _has_beam):
                 name = 'en'
             elif (not _has_stem):
                 name = 'wn'
@@ -79,8 +79,8 @@ def extract_notes_from_doc(cropobjects):
 notes = [extract_notes_from_doc(cropobjects) for cropobjects in docs]
 qns = list(itertools.chain(*[qn for qn, hn, en, wn in notes]))
 hns = list(itertools.chain(*[hn for qn, hn, en, wn in notes]))
-# ens = list(itertools.chain(*[en for qn, hn, en, wn in notes]))
-ens = []
+ens = list(itertools.chain(*[en for qn, hn, en, wn in notes]))
+# ens = []
 wns = list(itertools.chain(*[wn for qn, hn, en, wn in notes]))
 # %%
 def get_image(cropobjects, margin=1):
@@ -112,7 +112,7 @@ def get_image(cropobjects, margin=1):
 
 qn_images = [[get_image(qn) for qn in qns], [0] *len(qns)]
 hn_images = [[get_image(hn) for hn in hns], [1] *len(hns)]
-en_images = [[get_image(en) for en in hns], [2] *len(ens)]
+en_images = [[get_image(en) for en in ens], [2] *len(ens)]
 wn_images = [[get_image(wn) for wn in wns], [3] *len(wns)]
 
 # %%
