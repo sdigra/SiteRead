@@ -33,6 +33,7 @@ def extract_notes_from_doc(cropobjects):
     _cropobj_dict = {c.objid: c for c in cropobjects}
 
     notes = []
+    rests = []
     for c in cropobjects:
         if (c.clsname == 'notehead-full') or (c.clsname == 'notehead-empty'):
             _has_stem = False
@@ -66,22 +67,50 @@ def extract_notes_from_doc(cropobjects):
                 name = 'wn'
             if name != '':
                 notes.append((c, stem_obj, flag_obj, name))
+        elif c.clsname.endswith('rest'):
+            name = ''
+            if c.clsname == '16th_rest':
+                name = 'sr'
+            elif c.clsname == '8th_rest':
+                name = 'er'
+            elif c.clsname == 'half_rest':
+                name = 'hr'
+            elif c.clsname == 'quarter_rest':
+                name = 'qr'
+            elif c.clsname == 'whole_rest':
+                name = 'wr'
+            
+            if name != '':
+                rests.append((c, name))
     quarter_notes = [(n, s) for n, s, f, t in notes if t == 'qn']
     half_notes = [(n, s) for n, s, f, t in notes if t == 'hn']
     eighth_notes = [(n, s, f) for n, s, f, t in notes if t == 'en']
     whole_notes = [(n,) for n, s, f, t in notes if t == 'wn']
-    return quarter_notes, half_notes, eighth_notes, whole_notes
+
+    quarter_rests = [(n,) for n, t in rests if t == 'qr']
+    half_rests = [(n,) for n, t in rests if t == 'hr']
+    eighth_rests = [(n,) for n, t in rests if t == 'er']
+    whole_rests = [(n,) for n, t in rests if t == 'wr']
+    sixteenth_rests = [(n,) for n, t in rests if t == 'sr']
+    return quarter_notes, half_notes, eighth_notes, whole_notes, \
+        quarter_rests, half_rests, eighth_rests, whole_rests, sixteenth_rests
 
 # qns_and_hns = [extract_notes_from_doc(cropobjects) for cropobjects in docs]
 
 # qns = list(itertools.chain(*[qn for qn, hn in qns_and_hns]))
 # hns = list(itertools.chain(*[hn for qn, hn in qns_and_hns]))
 notes = [extract_notes_from_doc(cropobjects) for cropobjects in docs]
-qns = list(itertools.chain(*[qn for qn, hn, en, wn in notes]))
-hns = list(itertools.chain(*[hn for qn, hn, en, wn in notes]))
-ens = list(itertools.chain(*[en for qn, hn, en, wn in notes]))
-# ens = []
-wns = list(itertools.chain(*[wn for qn, hn, en, wn in notes]))
+qns = list(itertools.chain(*[qn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+hns = list(itertools.chain(*[hn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+# ens = list(itertools.chain(*[en for qn, hn, en, wn in notes]))
+ens = []
+wns = list(itertools.chain(*[wn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+
+qrs = list(itertools.chain(*[qr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+hrs = list(itertools.chain(*[hr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+ers = list(itertools.chain(*[er for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+wrs = list(itertools.chain(*[wr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+srs = list(itertools.chain(*[sr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 # %%
 def get_image(cropobjects, margin=1):
     """Paste the cropobjects' mask onto a shared canvas.
@@ -99,13 +128,14 @@ def get_image(cropobjects, margin=1):
     canvas = numpy.zeros((height, width), dtype='uint8')
 
     for c in cropobjects:
+        if c is not None:
         # Get coordinates of upper left corner of the CropObject
         # relative to the canvas
-        _pt = c.top - top + margin
-        _pl = c.left - left + margin
+            _pt = c.top - top + margin
+            _pl = c.left - left + margin
         # We have to add the mask, so as not to overwrite
         # previous nonzeros when symbol bounding boxes overlap.
-        canvas[_pt:_pt+c.height, _pl:_pl+c.width] += c.mask
+            canvas[_pt:_pt+c.height, _pl:_pl+c.width] += c.mask
 
     canvas[canvas > 0] = 1
     return canvas
@@ -114,18 +144,25 @@ qn_images = [[get_image(qn) for qn in qns], [0] *len(qns)]
 hn_images = [[get_image(hn) for hn in hns], [1] *len(hns)]
 en_images = [[get_image(en) for en in ens], [2] *len(ens)]
 wn_images = [[get_image(wn) for wn in wns], [3] *len(wns)]
-
+qr_images = [[get_image(qr) for qr in qrs], [4] *len(qrs)]
+hr_images = [[get_image(hr) for hr in hrs], [5] *len(hrs)]
+er_images = [[get_image(er) for er in ers], [6] *len(ers)]
+wr_images = [[get_image(wr) for wr in wrs], [7] *len(wrs)]
+sr_images = [[get_image(sr) for sr in srs], [8] *len(srs)]
 # %%
-data = np.array(qn_images[0] + hn_images[0] + en_images[0] + wn_images[0], dtype=object)
+data = np.array(qn_images[0] + hn_images[0] + en_images[0] + wn_images[0]
+    + qr_images[0] + hr_images[0] + er_images[0] + wr_images[0] + sr_images[0],dtype=object)
 
 images_temp = []
 for i in range(len(data)):
-    data[i] = np.pad(data[i], [(0, 205-data[i].shape[0]), (0, 70-data[i].shape[1])], mode='constant')
+    data[i] = np.pad(data[i], [(0, 205-data[i].shape[0]), (0, 95-data[i].shape[1])], mode='constant')
     images_temp.append(data[i])
 
 # %%
+from sklearn.naive_bayes import BernoulliNB
 images = np.array(images_temp)
-targets = np.array(qn_images[1] + hn_images[1] + en_images[1] + wn_images[1])
+targets = np.array(qn_images[1] + hn_images[1] + en_images[1] + wn_images[1]
+    + qr_images[1] + hr_images[1] + er_images[1] + wr_images[1] + sr_images[1])
 
 rng = np.random.default_rng()
 indices = np.arange(images.shape[0])
@@ -137,7 +174,7 @@ notes = images.reshape((len(images), -1))
 X_train, X_test, y_train, y_test = train_test_split(
     notes, targets, test_size=0.5, shuffle=False)
 
-GNB_classifier = GaussianNB()
+GNB_classifier = BernoulliNB()
 GNB_classifier.fit(X_train, y_train)
 predicted = GNB_classifier.predict(X_test)
 _, axes = plt.subplots(2, 20)
