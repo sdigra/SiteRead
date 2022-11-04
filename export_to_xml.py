@@ -1,6 +1,6 @@
 from pymusicxml import *
+from music21 import *
 from random import choice, choices
-from nb_train import *
 
 def generate_example():
     score = Score(title="Algorithmically Generated MusicXML", composer="HTMLvis")
@@ -27,6 +27,10 @@ def generate_example():
         
     part.extend(measures)
     score.export_to_file("AlgorithmicExample.musicxml")
+
+    melody = converter.parse("AlgorithmicExample.musicxml")
+    melody.show() # YOU NEED MUSESCORE TO RUN THIS
+    # melody.show('midi')
 
 def generate_from_input(quarter_notes, half_notes, eighth_notes, whole_notes):
     score = Score(title="Algorithmically Generated MusicXML", composer="HTMLvis")
@@ -61,3 +65,5 @@ def generate_from_input(quarter_notes, half_notes, eighth_notes, whole_notes):
     part.extend(measures)
 
     score.export_to_file("InputGenerated.musicxml")
+
+generate_example()
