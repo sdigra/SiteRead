@@ -30,7 +30,6 @@ def generate_example():
 
     melody = converter.parse("AlgorithmicExample.musicxml")
     melody.show() # YOU NEED MUSESCORE TO RUN THIS
-    # melody.show('midi')
 
 def generate_from_input(quarter_notes, half_notes, eighth_notes, whole_notes):
     score = Score(title="Algorithmically Generated MusicXML", composer="HTMLvis")
