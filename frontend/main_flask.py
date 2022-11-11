@@ -9,18 +9,27 @@ from flask import Flask, render_template, request, redirect, url_for
 app = Flask(__name__)
 
 @app.route('/')
-def hello_world():
+def home():
     try:
         return render_template('index.html')
     except Exception as e:
         return str(e)
 
-@app.route('/', methods=['POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
-    uploaded_file = request.files['upload_image']
-    if uploaded_file.filename != '':
-        uploaded_file.save(uploaded_file.filename)
-    return redirect(url_for('index'))
+    content = request.get_json(force=True)
+    print(content)
+    if request.method == 'POST':
+        #print(request.get_json()['file'])  # parse as JSON
+        d = {'file_url': "../AlgorithmicExample.musicxml"}
+        return d
+    # print(file)
+    # uploaded_file = request.files['upload_image']
+    # print(uploaded_file.filename)
+    # if uploaded_file.filename != '':
+    #     uploaded_file.save(uploaded_file.filename)
+    #     # redirect(url_for('index'))
+    return "file successfully uploaded"
 
 if __name__ == '__main__':
    app.run()
