@@ -16,7 +16,7 @@ composer = ConditionalGANComposer(midi_path_list=['/Users/siya/UIUC/CS 222/cours
                                   seq_len = 100,
                                   learning_rate = 0.0002,
                                   time_fraction = 0.25,
-                                  ctx = mx.cpu())
+                                  ctx = mx.gpu())
 
 composer.learn(iter_n=1000, k_step=10)
 
