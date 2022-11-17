@@ -32,7 +32,7 @@ def generate_example():
     melody.show() # YOU NEED MUSESCORE TO RUN THIS
     # melody.show('midi')
 
-def generate_from_input(quarter_notes, half_notes, eighth_notes, whole_notes):
+def generate_from_input(quarter_notes, half_notes, eighth_notes, whole_notes, quarter_rests, half_rests, eighth_rests, whole_rests, sixteenth_rests):
     score = Score(title="Algorithmically Generated MusicXML", composer="HTMLvis")
     part = Part("Piano") #need to receive instrument name from data
     score.append(part)
@@ -60,6 +60,31 @@ def generate_from_input(quarter_notes, half_notes, eighth_notes, whole_notes):
     for (n,) in whole_notes:
         m = Measure(time_signature=(3, 4))
         m.append(Note(n, 4.0))
+    measures.append(m)
+
+    for (n,) in quarter_rests:
+        m = Measure(time_signature=(3, 4))
+        m.append(Rest(n, 1.0))
+    measures.append(m)
+
+    for (n,) in half_rests:
+        m = Measure(time_signature=(3, 4))
+        m.append(Rest(n, 2.0))
+    measures.append(m)
+
+    for (n,) in eighth_rests:
+        m = Measure(time_signature=(3, 4))
+        m.append(Rest(n, 0.5))
+    measures.append(m)
+
+    for (n,) in whole_rests:
+        m = Measure(time_signature=(3, 4))
+        m.append(Rest(n, 4.0))
+    measures.append(m)
+
+    for (n,) in sixteenth_rests:
+        m = Measure(time_signature=(3, 4))
+        m.append(Rest(n, 0.25))
     measures.append(m)
 
     part.extend(measures)
