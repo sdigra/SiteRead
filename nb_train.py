@@ -14,6 +14,7 @@ from sklearn import metrics
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
+# %%
 # CROPOBJECT_DIR = os.path.join(os.environ['HOME'], './musicma_training_set/data/cropobjects_withstaff')
 CROPOBJECT_DIR = './musicma_training_set/data/cropobjects_withstaff'
 cropobject_fnames = [os.path.join(CROPOBJECT_DIR, f) for f in os.listdir(CROPOBJECT_DIR)]
@@ -197,4 +198,35 @@ disp.figure_.suptitle("Confusion Matrix")
 print("\nConfusion matrix:\n%s" % disp.confusion_matrix)
 print("\nAccuracy of the Algorithm: ", GNB_classifier.score(X_test, y_test))
 plt.show()
+# %%
+def sheet_to_notes(filename, num_bars, measures_per_bar):
+    image = Image.open(filename).convert('L')
+    # pixel_values = list(image.getdata())
+    # pixel_values = np.array(pixel_values).reshape((width, height))
+    # pixel_values = ((pixel_values / 17)).astype(int).astype(float)
+    pixel_values = np.asarray(image)
+    pixel_values = pixel_values[:,70:-40]
+    plt.imshow(pixel_values, cmap='Greys_r')
+    plt.show()
+    height, width = pixel_values.shape
+    bar_height = int(height/num_bars)
+    measure_width = int(width/measures_per_bar)
+    notes = []
+    for i in range(num_bars):
+        bar = pixel_values[i*bar_height:(i+1)*bar_height,:]
+        for j in range(measures_per_bar):
+            measure = bar[:,j*measure_width:(j+1)*measure_width]
+            for k in range(4):
+                note = measure[:,k*int(measure_width/4):(k+1)*int(measure_width/4)]
+                notes.append(note[int(40-2.5*i):int(100-2.5*i),:])
+    return notes
+
+notes = sheet_to_notes('./test-sheet.jpg', 8, 4)
+
+# %%
+fig = plt.figure(figsize=(50, 50))  # width, height in inches
+
+for i in range(128):
+    sub = fig.add_subplot(8, 16, i + 1)
+    sub.imshow(notes[i], cmap='Greys_r')
 # %%
