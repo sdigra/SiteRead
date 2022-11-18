@@ -15,16 +15,16 @@ function handleEvent(event) {
   if (event.type === "load") {
     // create an image element and add it to the webpage
     // this will only be called when reader.result has been loaded
-    // let image = document.createElement("img");
-    // image.src = reader.result;
-    // document_contets.append(image);
     console.log("file loaded");
     //send image to backend (preps, processes, returns xml)
+    // var data = new FormData();
+    // data.append("file", reader.result);
     fetch("/upload", {
       method: "POST",
-      // headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(reader.result),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ img_src: reader.result }),
     })
+      .catch(console.log("Error occured"))
       .then((response) => response.json())
       .then(function (data) {
         console.log("GET response:");
@@ -32,10 +32,13 @@ function handleEvent(event) {
         console.log(file_link);
         //adds link to download file, link appears on screen and when clicked downloads an xml to the computer
         let link = document.createElement("a");
-        link.href = file_link;
         link.setAttribute("download", "");
+        link.href = "./xml_files/AlgorithmicExample1.musicxml";
         link.innerHTML = "download musicxml file";
         document_contets.append(link);
+        let image = document.createElement("img");
+        image.src = reader.result;
+        document_contets.append(image);
       });
   }
 }
@@ -48,17 +51,11 @@ function convertToXML(event) {
   let file = document.getElementById("upload_image").files[0];
   console.log(file);
   if (file) {
+    // var data = new FormData();
+    // data.append("file", file, "file");
     reader.addEventListener("load", handleEvent);
     // the event listener will be loaded
 
     reader.readAsDataURL(file);
   }
 }
-
-// reader.onload = () => {
-//   console.log("loaded");
-//   this.setState({
-//     queryImage: reader.result,
-//   });
-//   console.log(queryImage);
-// };
