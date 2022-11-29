@@ -17,8 +17,6 @@ function handleEvent(event) {
     // this will only be called when reader.result has been loaded
     console.log("file loaded");
     //send image to backend (preps, processes, returns xml)
-    // var data = new FormData();
-    // data.append("file", reader.result);
     fetch("/upload", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -33,7 +31,8 @@ function handleEvent(event) {
         //adds link to download file, link appears on screen and when clicked downloads an xml to the computer
         let link = document.createElement("a");
         link.setAttribute("download", "");
-        link.href = "./xml_files/AlgorithmicExample1.musicxml";
+        //link.href = "static/note_image/test.png";
+        link.href = file_link;
         link.innerHTML = "download musicxml file";
         document_contets.append(link);
         let image = document.createElement("img");
@@ -51,8 +50,6 @@ function convertToXML(event) {
   let file = document.getElementById("upload_image").files[0];
   console.log(file);
   if (file) {
-    // var data = new FormData();
-    // data.append("file", file, "file");
     reader.addEventListener("load", handleEvent);
     // the event listener will be loaded
 

@@ -13,6 +13,7 @@ import base64, os
 
 app = Flask(__name__)
 
+# runs when the app is opened
 @app.route('/')
 def home():
     try:
@@ -20,28 +21,29 @@ def home():
     except Exception as e:
         return str(e)
 
+# main processsing function, will be called with a JSON holding the image the user uploaded
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         content = request.get_json()
-        #print(content)
         # meta data and content of image are divided by "," in the passed in array buffer string
         img_data = content["img_src"].split(",")
         print(img_data[0])
-        decoded = base64.b64decode(img_data[1])
+        # img holds the data for the image uploaded by the user
+        img = base64.b64decode(img_data[1])
 
-        #write image to file, used for tesing
-        with open(os.path.abspath('./static/xml_files/test.png'), 'wb') as f:
-              f.write(decoded)
+        # write image to file, used for tesing, 
+        # can do this when implemented if easier to process
+        with open('static/result_files/test.png', 'wb') as f:
+              f.write(img)
+        # process image here
 
-        d = {'file_url': "/Users/sofiasivilotti/Documents/course-project-group-27/frontend/xml_files/AlgorithmicExample1.musicxml"}
+        # return xml file which should be stored in the result_files folder 
+        # or else there will be problems downloading it
+        # when the xml is returned only the file path needs to be returned 
+        # with the key 'file_url' in the dictionary/JSON d
+        d = {'file_url': f.name}
         return d
-    # print(file)
-    # uploaded_file = request.files['upload_image']
-    # print(uploaded_file.filename)
-    # if uploaded_file.filename != '':
-    #     uploaded_file.save(uploaded_file.filename)
-    #     # redirect(url_for('index'))
     return "file successfully uploaded"
 
 if __name__ == '__main__':
