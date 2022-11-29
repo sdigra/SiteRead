@@ -44,7 +44,6 @@ def upload_file():
         # with the key 'file_url' in the dictionary/JSON d
         d = {'file_url': f.name}
         return d
-    return "file successfully uploaded"
 
 if __name__ == '__main__':
    app.run()
