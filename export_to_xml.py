@@ -19,7 +19,7 @@ def generate_example():
                 m.append(Chord(choices(pitch_bank, k=3), 1.0))
             elif (i + beat_num) % 3 == 1:
                 # two eighth note dyads
-                m.append(BeamedGroup([Chord(choices(pitch_bank, k=2), 0.5) for _ in range(2)]))
+                m.append(BeamedGroup([Chord(choices(pitch_bank[2]]), 0.5) for _ in range(2)]))
             else:
                 # four 16th note notes
                 m.append(BeamedGroup([Note(choice(pitch_bank), 0.25) for _ in range(4)]))
