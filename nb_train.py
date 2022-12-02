@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import BernoulliNB
+import math
 # %%
 # CROPOBJECT_DIR = os.path.join(os.environ['HOME'], './musicma_training_set/data/cropobjects_withstaff')
 CROPOBJECT_DIR = './musicma_training_set/data/cropobjects_withstaff'
@@ -145,25 +146,30 @@ qn_images = [[get_image(qn) for qn in qns], [0] *len(qns)]
 hn_images = [[get_image(hn) for hn in hns], [1] *len(hns)]
 en_images = [[get_image(en) for en in ens], [2] *len(ens)]
 wn_images = [[get_image(wn) for wn in wns], [3] *len(wns)]
-qr_images = [[get_image(qr) for qr in qrs], [4] *len(qrs)]
+# qr_images = [[get_image(qr) for qr in qrs], [4] *len(qrs)]
+qr_images = [[get_image(qr) for qr in qrs], [2] *len(qrs)]
 hr_images = [[get_image(hr) for hr in hrs], [5] *len(hrs)]
 er_images = [[get_image(er) for er in ers], [6] *len(ers)]
 wr_images = [[get_image(wr) for wr in wrs], [7] *len(wrs)]
 sr_images = [[get_image(sr) for sr in srs], [8] *len(srs)]
 # %%
-data = np.array(qn_images[0] + hn_images[0] + en_images[0] + wn_images[0]
-    + qr_images[0] + hr_images[0] + er_images[0] + wr_images[0] + sr_images[0],dtype=object)
+# data = np.array(qn_images[0] + hn_images[0] + en_images[0] + wn_images[0]
+#     + qr_images[0] + hr_images[0] + er_images[0] + wr_images[0] + sr_images[0],dtype=object)
+data = np.array(qn_images[0] + hn_images[0] + wn_images[0]
+    + qr_images[0],dtype=object)
 
 images_temp = []
 for i in range(len(data)):
-    data[i] = np.pad(data[i], [(0, 205-data[i].shape[0]), (0, 95-data[i].shape[1])], mode='constant')
+    pad_width = 95-data[i].shape[1]
+    pad_height = 205-data[i].shape[0]
+    data[i] = np.pad(data[i], [(math.ceil(pad_height/2), math.floor(pad_height/2)), (math.ceil(pad_width/2), math.floor(pad_width/2))], mode='constant')
     images_temp.append(data[i])
 
 # %%
-from sklearn.naive_bayes import BernoulliNB
 images = np.array(images_temp)
-targets = np.array(qn_images[1] + hn_images[1] + en_images[1] + wn_images[1]
-    + qr_images[1] + hr_images[1] + er_images[1] + wr_images[1] + sr_images[1])
+# targets = np.array(qn_images[1] + hn_images[1] + en_images[1] + wn_images[1]
+#     + qr_images[1] + hr_images[1] + er_images[1] + wr_images[1] + sr_images[1])
+targets = np.array(qn_images[1] + hn_images[1] + wn_images[1] + qr_images[1])
 
 rng = np.random.default_rng()
 indices = np.arange(images.shape[0])
@@ -199,13 +205,19 @@ print("\nConfusion matrix:\n%s" % disp.confusion_matrix)
 print("\nAccuracy of the Algorithm: ", GNB_classifier.score(X_test, y_test))
 plt.show()
 # %%
+fig = plt.figure(figsize=(10, 10))
+for i in range(16):
+    sub = fig.add_subplot(4, 4, i + 1)
+    sub.imshow(images[i], cmap='Greys_r')
+    sub.set_axis_off()
+# %%
 def sheet_to_notes(filename, num_bars, measures_per_bar):
     image = Image.open(filename).convert('L')
     # pixel_values = list(image.getdata())
     # pixel_values = np.array(pixel_values).reshape((width, height))
     # pixel_values = ((pixel_values / 17)).astype(int).astype(float)
     pixel_values = np.asarray(image)
-    pixel_values = pixel_values[:,70:-40]
+    pixel_values = pixel_values[:,140:-80]
     plt.imshow(pixel_values, cmap='Greys_r')
     plt.show()
     height, width = pixel_values.shape
@@ -218,15 +230,55 @@ def sheet_to_notes(filename, num_bars, measures_per_bar):
             measure = bar[:,j*measure_width:(j+1)*measure_width]
             for k in range(4):
                 note = measure[:,k*int(measure_width/4):(k+1)*int(measure_width/4)]
-                notes.append(note[int(40-2.5*i):int(100-2.5*i),:])
+                notes.append(note[int(80-5*i):int(200-5*i),:])
     return notes
 
-notes = sheet_to_notes('./test-sheet.jpg', 8, 4)
+notes = sheet_to_notes('./test-sheet3.jpg', 8, 4)
 
 # %%
-fig = plt.figure(figsize=(50, 50))  # width, height in inches
+fig = plt.figure(figsize=(10, 10))  # width, height in inches
 
-for i in range(128):
-    sub = fig.add_subplot(8, 16, i + 1)
+for i in range(16):
+    sub = fig.add_subplot(4, 4, i + 1)
     sub.imshow(notes[i], cmap='Greys_r')
+
+
+# %%
+data = np.array(notes[:16])
+images_temp = []
+for i in data:
+    i[i <= 15] = 0
+    i[i > 15] = 1
+    pad_width = 95 - i.shape[1]
+    pad_height = 205 - i.shape[0]
+    temp = np.pad(i, [(math.ceil(pad_height/2), math.floor(pad_height/2)), (math.ceil(pad_width/2), math.floor(pad_width/2))], mode='constant', constant_values = (1))
+    images_temp.append(temp)
+    i = i-1
+images = np.array(images_temp)
+X_test = images.reshape((len(images), -1))
+targets = [0]*4 + [1]*4 + [3]*4 + [2]*4
+predicted = GNB_classifier.predict(X_test)
+
+fig = plt.figure(figsize=(10, 10))  # width, height in inches
+
+
+# images_and_predictions = list(zip(images, predicted))
+# for ax, (image, prediction) in zip(axes.reshape((16, -1)), images_and_predictions[:16]):
+#     ax.set_axis_off()
+#     ax.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
+#     ax.set_title('%i' % prediction)
+
+for i in range(16):
+    
+    sub = fig.add_subplot(4, 4, i + 1)
+    sub.imshow(images[i], cmap='Greys_r')
+    sub.set_title('%i (%i)' % (predicted[i], targets[i]))
+    sub.set_axis_off()
+
+print("\nClassification report for classifier %s:\n%s\n" % (GNB_classifier, metrics.classification_report(targets, predicted)))
+disp = metrics.plot_confusion_matrix(GNB_classifier, X_test, targets)
+disp.figure_.suptitle("Confusion Matrix")
+print("\nConfusion matrix:\n%s" % disp.confusion_matrix)
+print("\nAccuracy of the Algorithm: ", GNB_classifier.score(X_test, targets))
+plt.show()
 # %%
