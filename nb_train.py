@@ -42,6 +42,9 @@ def extract_notes_from_doc(cropobjects):
             stem_obj = None
             flag_obj = None
             name = ''
+
+            # print("top: " + str(c.top))
+
             for o in c.outlinks:
                 _o_obj = _cropobj_dict[o]
                 if _o_obj.clsname == 'stem':
@@ -111,6 +114,9 @@ hrs = list(itertools.chain(*[hr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]
 ers = list(itertools.chain(*[er for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 wrs = list(itertools.chain(*[wr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 srs = list(itertools.chain(*[sr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+
+
+
 # %%
 def get_image(cropobjects, margin=1):
     """Paste the cropobjects' mask onto a shared canvas.
@@ -139,6 +145,47 @@ def get_image(cropobjects, margin=1):
 
     canvas[canvas > 0] = 1
     return canvas
+
+def get_key(note):
+    # notes just a 2d array representing the grayscale pixels
+    # we can maybe just find the middle coord of the note
+    # and use that to determine the key?
+
+    width, height = note.shape
+    left, right = 0, width
+
+    # figure out which rows are the measures so we can ignore those
+    measure_pixels = [] * height
+    for i in range(height):
+        if(note[0, i] != 0):
+            measure_pixels[i] = 1
+    
+    # looking for left and right pixels of the note
+    i = left
+    while left == 0:
+        for j in range(height):
+            if(note[i, j] != 0 and measure_pixels[j] == 0):
+                left = i
+                break
+        i += 1
+    i = right
+    while right == width:
+        for j in range(height):
+            if(note[i, j] != 0 and measure_pixels[j] == 0):
+                right = i
+                break
+        i -= 1
+
+    # look for the y coordinate at the middle
+    # we can probably use that to figure out the key
+    # as long as we know the coords of the measure
+    y = 0
+    for j in range(height):
+        if(note[(left+right)//2, j] != 0 and measure_pixels[j] == 0):
+            y = j
+            break
+
+    return y
 
 qn_images = [[get_image(qn) for qn in qns], [0] *len(qns)]
 hn_images = [[get_image(hn) for hn in hns], [1] *len(hns)]
