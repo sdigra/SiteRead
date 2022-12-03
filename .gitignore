@@ -1,3 +1,4 @@
 .DS_Store
 musicma_training_set/.DS_Store
 musicma_training_set/training_images/.DS_Store
+__pycache__
