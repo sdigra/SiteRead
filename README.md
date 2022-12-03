@@ -4,6 +4,8 @@
 
 Welcome to SiteRead!
 
+Currently, no such application exists that we are aware of to convert handwritten sheetmusic to a digital format. The lack of many comprehensive data sets has limited the development of similar applications. We got this idea because two members of our group are musicians who are frustrated that they can't easily convert their physical music into a digital format without using a music editing software to manually add all the notes.
+
 ## Technical Architecture
 
 Our application was made with HTML, CSS, JavaScript and Python.
