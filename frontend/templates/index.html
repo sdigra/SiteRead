@@ -27,7 +27,16 @@
             <input type="file" id="upload_image" accept="image/jpeg, image/png, image/jpg" /> <br /><br />
             <button class="btn btn-primary" id="read_image">Upload</button>
         </form>
-        <div id="result">
+        <div id="img_result">
+        </div>
+    </div>
+    <div class="container text-center">
+        <form onsubmit="return false" class="py-4" >
+            <label> Upload a midi file and we'll generate more to add to the file: </label>
+            <input type="file" id="upload_midi" accept="file/mid" /> <br /><br />
+            <button class="btn btn-primary" id="read_midi">Generate!</button>
+        </form>
+        <div id="midi_result">
         </div>
     </div>
 </body>
