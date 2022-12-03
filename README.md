@@ -44,6 +44,6 @@ Brandon: Worked on the backend, training the machine learning model and classify
 
 Elvin:
 
-Siya:
+Siya: Worked on the backend, converting notes classified by the model to an XML format and converting that to MIDI, and playing the output
 
-Sofia: worked on designing the front end and connecting it through flask to the python components the rest of the group worked on.
+Sofia: Worked on designing the front end and connecting it through flask to the python components the rest of the group worked on.
