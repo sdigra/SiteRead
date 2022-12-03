@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
-import base64, os
+import base64
 
 # main flask file to run python programs
-#might need to move frontend over to react for better integration with flask
 
 # https://flask.palletsprojects.com/en/2.2.x/
 # can install flask with pip install flask
@@ -44,7 +43,6 @@ def upload_file():
         # with the key 'file_url' in the dictionary/JSON d
         d = {'file_url': f.name}
         return d
-    return "file successfully uploaded"
 
 if __name__ == '__main__':
    app.run()

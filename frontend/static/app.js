@@ -22,7 +22,6 @@ function handleEvent(event) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ img_src: reader.result }),
     })
-      .catch(console.log("Error occured"))
       .then((response) => response.json())
       .then(function (data) {
         console.log("GET response:");
