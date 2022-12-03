@@ -15,9 +15,11 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 # CROPOBJECT_DIR = os.path.join(os.environ['HOME'], './musicma_training_set/data/cropobjects_withstaff')
-CROPOBJECT_DIR = './musicma_training_set/data/cropobjects_withstaff'
-cropobject_fnames = [os.path.join(CROPOBJECT_DIR, f) for f in os.listdir(CROPOBJECT_DIR)]
-docs = [parse_cropobject_list(f) for f in cropobject_fnames]
+
+
+# CROPOBJECT_DIR = './musicma_training_set/data/cropobjects_withstaff'
+# cropobject_fnames = [os.path.join(CROPOBJECT_DIR, f) for f in os.listdir(CROPOBJECT_DIR)]
+# docs = [parse_cropobject_list(f) for f in cropobject_fnames]
 
 # Bear in mind that the outlinks are integers, only valid within the same document.
 # Therefore, we define a function per-document, not per-dataset.
@@ -102,6 +104,7 @@ def extract_notes_from_doc(cropobjects):
 
 # qns = list(itertools.chain(*[qn for qn, hn in qns_and_hns]))
 # hns = list(itertools.chain(*[hn for qn, hn in qns_and_hns]))
+"""
 notes = [extract_notes_from_doc(cropobjects) for cropobjects in docs]
 qns = list(itertools.chain(*[qn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 hns = list(itertools.chain(*[hn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
@@ -114,7 +117,7 @@ hrs = list(itertools.chain(*[hr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]
 ers = list(itertools.chain(*[er for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 wrs = list(itertools.chain(*[wr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 srs = list(itertools.chain(*[sr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
-
+"""
 
 
 # %%
@@ -151,27 +154,40 @@ def get_key(note):
     # we can maybe just find the middle coord of the note
     # and use that to determine the key?
 
-    width, height = note.shape
-    left, right = 0, width
+    height, width = note.shape
+    left, right = 0, width-1
+
+    bwnote = [[0 for j in range(width)] for i in range(height)]
+
+    for i in range(height):
+        for j in range(width):
+            if note[i,j] > 210:
+                bwnote[i][j] = 255
+    # print("bwnote")
+    # for i in range(height):
+    #     print(bwnote[i][0])
 
     # figure out which rows are the measures so we can ignore those
-    measure_pixels = [] * height
+    staff_pixels = [0 for i in range(height)] 
+
+
     for i in range(height):
-        if(note[0, i] != 0):
-            measure_pixels[i] = 1
+        if(bwnote[i][0] == 0):
+            staff_pixels[i] = 1
     
     # looking for left and right pixels of the note
     i = left
+
     while left == 0:
         for j in range(height):
-            if(note[i, j] != 0 and measure_pixels[j] == 0):
+            if(bwnote[j][i] == 0 and staff_pixels[j] == 0):
                 left = i
                 break
         i += 1
     i = right
     while right == width:
         for j in range(height):
-            if(note[i, j] != 0 and measure_pixels[j] == 0):
+            if(bwnote[j][i] == 0 and staff_pixels[j] == 0):
                 right = i
                 break
         i -= 1
@@ -179,14 +195,24 @@ def get_key(note):
     # look for the y coordinate at the middle
     # we can probably use that to figure out the key
     # as long as we know the coords of the measure
-    y = 0
+    y1 = 0
+    y2 = height-1
     for j in range(height):
-        if(note[(left+right)//2, j] != 0 and measure_pixels[j] == 0):
-            y = j
+        if(bwnote[j][(left+right)//2] == 0 and staff_pixels[j] == 0):
+            y1 = j
+            break
+    for j in range(height):
+        if(bwnote[height-1-j][(left+right)//2] == 0 and staff_pixels[j] == 0):
+            y2 = height-1-j
             break
 
-    return y
+    return (y1+y2)//2
 
+image = Image.open("note_e.png").convert('L')
+pixel_values = np.asarray(image)
+print("key: " + str(get_key(pixel_values)))
+
+"""
 qn_images = [[get_image(qn) for qn in qns], [0] *len(qns)]
 hn_images = [[get_image(hn) for hn in hns], [1] *len(hns)]
 en_images = [[get_image(en) for en in ens], [2] *len(ens)]
@@ -245,3 +271,4 @@ print("\nConfusion matrix:\n%s" % disp.confusion_matrix)
 print("\nAccuracy of the Algorithm: ", GNB_classifier.score(X_test, y_test))
 plt.show()
 # %%
+"""
