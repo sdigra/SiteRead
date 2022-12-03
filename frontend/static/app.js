@@ -1,7 +1,7 @@
 //Set elements from HTML file
 let read_img_button = document.getElementById("read_image");
 
-let document_contets = document.getElementById("result");
+let img_result = document.getElementById("img_result");
 
 // file reader for the image
 const reader = new FileReader();
@@ -16,11 +16,15 @@ function handleEvent(event) {
     // create an image element and add it to the webpage
     // this will only be called when reader.result has been loaded
     console.log("file loaded");
+    let time_signature = document.getElementById("time_signature").value;
     //send image to backend (preps, processes, returns xml)
     fetch("/upload", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ img_src: reader.result }),
+      body: JSON.stringify({
+        img_src: reader.result,
+        time_sig: time_signature,
+      }),
     })
       .then((response) => response.json())
       .then(function (data) {
@@ -33,10 +37,10 @@ function handleEvent(event) {
         //link.href = "static/note_image/test.png";
         link.href = file_link;
         link.innerHTML = "download musicxml file";
-        document_contets.append(link);
+        img_result.append(link);
         let image = document.createElement("img");
         image.src = reader.result;
-        document_contets.append(image);
+        img_result.append(image);
       });
   }
 }
