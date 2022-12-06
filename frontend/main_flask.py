@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
 import base64
+from pycomposer.gancomposable._mxnet.conditional_gan_composer import ConditionalGANComposer
+from logging import getLogger, StreamHandler, NullHandler, DEBUG, ERROR
+import mxnet as mx
+import torch
 
 # main flask file to run python programs
 
@@ -44,6 +48,52 @@ def upload_img():
         # when the xml is returned only the file path needs to be returned 
         # with the key 'file_url' in the dictionary/JSON d
         d = {'file_url': f.name}
+        return d
+
+@app.route('/midiupload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        content = request.get_json()
+        midi_data = content["file_data"].split(",")
+        mid = base64.b64decode(midi_data[1])
+        # write image to file, used for tesing, 
+        # can do this when implemented if easier to process
+        with open('input.mid', 'wb') as f:
+              f.write(mid)
+        # generate more here 
+
+        ctx = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+        logger = getLogger("pygan")
+        handler = StreamHandler()
+        handler.setLevel(DEBUG)
+        logger.setLevel(DEBUG)
+        logger.addHandler(handler)
+
+        composer = ConditionalGANComposer(midi_path_list=[f.name], 
+                                          batch_size = 1,
+                                          seq_len = 100,
+                                          learning_rate = 0.0002,
+                                          time_fraction = 0.25,
+                                          ctx = mx.gpu())
+
+        composer.learn(iter_n=1000, k_step=10)
+
+        composer.compose(
+            file_path="static/result_files/output.mid", 
+            # Mean of velocity.
+            # This class samples the velocity from a Gaussian distribution of 
+            # `velocity_mean` and `velocity_std`.
+            # If `None`, the average velocity in MIDI files set to this parameter.
+            velocity_mean=30,
+            # Standard deviation(SD) of velocity.
+            # This class samples the velocity from a Gaussian distribution of 
+            # `velocity_mean` and `velocity_std`.
+            # If `None`, the SD of velocity in MIDI files set to this parameter.
+            velocity_std=0
+        )
+        # return midi file
+        d = {'file_url': "/static/result_files/output.mid"}
         return d
 
 if __name__ == '__main__':
