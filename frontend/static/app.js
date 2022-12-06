@@ -19,11 +19,15 @@ function handleFileRead(event) {
     // create an image element and add it to the webpage
     // this will only be called when reader.result has been loaded
     console.log("file loaded");
+    let time_signature = document.getElementById("time_signature").value;
     //send image to backend (preps, processes, returns xml)
     fetch("/upload", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ img_src: reader.result }),
+      body: JSON.stringify({
+        img_src: reader.result,
+        time_sig: time_signature,
+      }),
     })
       .then((response) => response.json())
       .then(function (data) {

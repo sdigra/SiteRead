@@ -29,6 +29,8 @@ def home():
 def upload_img():
     if request.method == 'POST':
         content = request.get_json()
+        time_signature = content["time_sig"].split("/")
+        print(time_signature)
         # meta data and content of image are divided by "," in the passed in array buffer string
         img_data = content["img_src"].split(",")
         print(img_data[0])
