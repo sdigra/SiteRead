@@ -36,7 +36,10 @@ function handleFileRead(event) {
         //link.href = "static/note_image/test.png";
         link.href = file_link;
         link.innerHTML = "download musicxml file";
+        link.className = "btn btn-secondary";
         img_result.append(link);
+        img_result.append(document.createElement("br"));
+        img_result.append(document.createElement("br"));
         let image = document.createElement("img");
         image.src = reader.result;
         img_result.append(image);
@@ -90,6 +93,7 @@ function handleMidiRead(event) {
         console.log(file_link);
         //adds link to download file, link appears on screen and when clicked downloads the generated midi
         let link = document.createElement("a");
+        link.className = "btn btn-secondary";
         link.setAttribute("download", "");
         link.href = file_link;
         link.innerHTML = "download generated midi file";
