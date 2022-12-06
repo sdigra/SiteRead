@@ -36,7 +36,7 @@ function handleFileRead(event) {
       .then((response) => response.json())
       .then(function (data) {
         console.log("GET response:");
-        midi_result.removeChild(loader);
+        img_result.removeChild(loader);
         read_img_button.removeAttribute("disabled", "");
         let file_link = data["file_url"];
         console.log(file_link);
@@ -63,6 +63,9 @@ function handleFileRead(event) {
 function convertToXML() {
   //read image
   //event.preventDefault();
+  if (img_result.hasChildNodes()) {
+    img_result.innerHTML = "";
+  }
   let file = document.getElementById("upload_image").files[0];
   read_img_button.setAttribute("disabled", "");
   console.log(file);
@@ -77,6 +80,9 @@ function convertToXML() {
 function generateMore() {
   //read image
   //event.preventDefault();
+  if (midi_result.hasChildNodes()) {
+    midi_result.innerHTML = "";
+  }
   let file = document.getElementById("upload_midi").files[0];
   read_midi_button.setAttribute("disabled", "");
   console.log(file);
