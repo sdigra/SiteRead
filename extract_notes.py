@@ -178,7 +178,6 @@ images = images[indices]
 targets = targets[indices]
 
 notes = images.reshape((len(images), -1))
-
 Classifier = BernoulliNB()
 Classifier.fit(notes, targets)
 # %%
@@ -195,8 +194,8 @@ def sheet_to_notes(filename, num_bars, measures_per_bar):
     # pixel_values = ((pixel_values / 17)).astype(int).astype(float)
     pixel_values = np.asarray(image)
     pixel_values = pixel_values[:,140:-80]
-    plt.imshow(pixel_values, cmap='Greys_r')
-    plt.show()
+    # plt.imshow(pixel_values, cmap='Greys_r')
+    # plt.show()
     height, width = pixel_values.shape
     bar_height = int(height/num_bars)
     measure_width = int(width/measures_per_bar)
@@ -207,10 +206,10 @@ def sheet_to_notes(filename, num_bars, measures_per_bar):
             measure = bar[:,j*measure_width:(j+1)*measure_width]
             for k in range(4):
                 note = measure[:,k*int(measure_width/4):(k+1)*int(measure_width/4)]
-                notes.append(note[int(80-5*i):int(200-5*i),:])
+                notes.append(note[int(120-7.5*i):int(300-7.5*i),:])
     return notes
 
-notes = sheet_to_notes('./test-sheet3.jpg', 8, 4)
+notes = sheet_to_notes('./test-sheet4.jpg', 8, 4)
 
 # %%
 fig = plt.figure(figsize=(10, 10))  # width, height in inches
@@ -229,8 +228,8 @@ for i in data:
     pad_width = 95 - i.shape[1]
     pad_height = 205 - i.shape[0]
     temp = np.pad(i, [(math.ceil(pad_height/2), math.floor(pad_height/2)), (math.ceil(pad_width/2), math.floor(pad_width/2))], mode='constant', constant_values = (1))
+    temp = 1-temp
     images_temp.append(temp)
-    i = i-1
 images = np.array(images_temp)
 X_test = images.reshape((len(images), -1))
 targets = [0]*4 + [1]*4 + [3]*4 + [2]*4
@@ -252,10 +251,10 @@ for i in range(16):
     sub.set_title('%i (%i)' % (predicted[i], targets[i]))
     sub.set_axis_off()
 
-print("\nClassification report for classifier %s:\n%s\n" % (GNB_classifier, metrics.classification_report(targets, predicted)))
-disp = metrics.plot_confusion_matrix(GNB_classifier, X_test, targets)
+print("\nClassification report for classifier %s:\n%s\n" % (Classifier, metrics.classification_report(targets, predicted)))
+disp = metrics.plot_confusion_matrix(Classifier, X_test, targets)
 disp.figure_.suptitle("Confusion Matrix")
 print("\nConfusion matrix:\n%s" % disp.confusion_matrix)
-print("\nAccuracy of the Algorithm: ", GNB_classifier.score(X_test, targets))
+print("\nAccuracy of the Algorithm: ", Classifier.score(X_test, targets))
 plt.show()
 # %%
