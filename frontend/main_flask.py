@@ -4,7 +4,8 @@ from pycomposer.gancomposable._mxnet.conditional_gan_composer import Conditional
 from logging import getLogger, StreamHandler, NullHandler, DEBUG, ERROR
 import mxnet as mx
 import torch
-
+from modules import train_model
+from modules import parse_sheet
 # main flask file to run python programs
 
 # https://flask.palletsprojects.com/en/2.2.x/
@@ -15,7 +16,7 @@ import torch
 # flask run
 
 app = Flask(__name__)
-
+Classifier = train_model.train()
 # runs when the app is opened
 @app.route('/')
 def home():
@@ -42,7 +43,9 @@ def upload_img():
         with open('static/result_files/test.png', 'wb') as f:
               f.write(img)
         # process image here
-
+        note_images = parse_sheet.parse('static/result_files/test.png')
+        notes = Classifier.predict(note_images)
+        print(notes)
         # return xml file which should be stored in the result_files folder 
         # or else there will be problems downloading it
         # when the xml is returned only the file path needs to be returned 
