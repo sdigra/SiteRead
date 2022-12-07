@@ -49,7 +49,7 @@ and open http://127.0.0.1:5000 in your browser of choice.
 
 Brandon: Worked on the backend, training the machine learning model and classifying notes.
 
-Elvin:
+Elvin: Worked on the backend, identifying the key of each note
 
 Siya: Worked on the backend, converting notes classified by the model to an XML format and converting that to MIDI, and playing the output
 
