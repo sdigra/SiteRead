@@ -15,6 +15,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 # CROPOBJECT_DIR = os.path.join(os.environ['HOME'], './musicma_training_set/data/cropobjects_withstaff')
+
+
 CROPOBJECT_DIR = './musicma_training_set/data/cropobjects_withstaff'
 cropobject_fnames = [os.path.join(CROPOBJECT_DIR, f) for f in os.listdir(CROPOBJECT_DIR)]
 docs = [parse_cropobject_list(f) for f in cropobject_fnames]
@@ -42,6 +44,9 @@ def extract_notes_from_doc(cropobjects):
             stem_obj = None
             flag_obj = None
             name = ''
+
+            # print("top: " + str(c.top))
+
             for o in c.outlinks:
                 _o_obj = _cropobj_dict[o]
                 if _o_obj.clsname == 'stem':
@@ -99,6 +104,7 @@ def extract_notes_from_doc(cropobjects):
 
 # qns = list(itertools.chain(*[qn for qn, hn in qns_and_hns]))
 # hns = list(itertools.chain(*[hn for qn, hn in qns_and_hns]))
+
 notes = [extract_notes_from_doc(cropobjects) for cropobjects in docs]
 qns = list(itertools.chain(*[qn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 hns = list(itertools.chain(*[hn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
@@ -111,6 +117,9 @@ hrs = list(itertools.chain(*[hr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]
 ers = list(itertools.chain(*[er for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 wrs = list(itertools.chain(*[wr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
 srs = list(itertools.chain(*[sr for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
+
+
+
 # %%
 def get_image(cropobjects, margin=1):
     """Paste the cropobjects' mask onto a shared canvas.
@@ -139,6 +148,94 @@ def get_image(cropobjects, margin=1):
 
     canvas[canvas > 0] = 1
     return canvas
+
+def get_key(note):
+    # notes just a 2d array representing the grayscale pixels
+    # we can maybe just find the middle coord of the note
+    # and use that to determine the key?
+
+    height, width = note.shape
+    left, right = 0, width-1
+
+    bwnote = [[0 for j in range(width)] for i in range(height)]
+
+    for i in range(height):
+        for j in range(width):
+            if note[i,j] > 247:
+                bwnote[i][j] = 255
+    # print("bwnote")
+    # for i in range(height):
+    #     print(bwnote[i][0])
+
+    # figure out which rows are the staff lines so we can ignore those
+    staff_pixels = [0 for i in range(height)] 
+
+
+    for i in range(height):
+        if(bwnote[i][0] == 0):
+            staff_pixels[i] = 1
+    
+    # looking for left and right pixels of the note
+    i = left
+
+    while left == 0:
+        for j in range(height):
+            if(bwnote[j][i] == 0 and staff_pixels[j] == 0):
+                left = i
+                break
+        i += 1
+    i = right
+    while right == width-1:
+        for j in range(height):
+            if(bwnote[j][i] == 0 and staff_pixels[j] == 0):
+                right = i
+                break
+        i -= 1
+    # print(str(left) + " " + str(right) + " " + str(width))
+
+    # look for the y coordinate at the middle
+    # we can probably use that to figure out the key
+    # as long as we know the coords of the measure
+    y1 = 0
+    y2 = height-1
+    for j in range(height):
+        if(bwnote[j][(left+right)//2] == 0 and staff_pixels[j] == 0):
+            y1 = j
+            break
+    for j in range(height):
+        if(bwnote[height-1-j][(left+right)//2] == 0 and staff_pixels[height-1-j] == 0):
+            y2 = height-1-j
+            break
+    first_staff = 0
+    last_staff = 0
+    for i in range(len(staff_pixels)):
+        if staff_pixels[i] == 1:
+            last_staff = i
+            if first_staff == 0:
+                first_staff = i
+    # print("last staff: " + str(last_staff))
+    note_height = (last_staff-first_staff)/4
+
+    # just in case the image is ass and it couldnt find the top or bottom of the note i shoulda dropped this class i hate everything
+    # if(y1 == 0 and y2 != height-1):
+    #     y1 = y2 - note_height
+    # elif(y2 == height-1 and y1 != 0):
+    #     y2 = y1 + note_height
+
+    last_staff = last_staff - first_staff
+    x = 8/last_staff
+    # print("note height = " + str(note_height))
+    # print(str(y1) + " " + str(y2) + " " + str(height))
+    y = (y1+y2)//2
+    y = (y-first_staff)*x
+    # print("y = " + str(y))
+
+    return round(y)
+
+# image = Image.open("note_c.png").convert('L')
+# pixel_values = np.asarray(image)
+# print("key: " + str(get_key(pixel_values)))
+
 
 qn_images = [[get_image(qn) for qn in qns], [0] *len(qns)]
 hn_images = [[get_image(hn) for hn in hns], [1] *len(hns)]
