@@ -1,5 +1,6 @@
 from pymusicxml import *
-from music21 import *
+# from music21 import *
+from music21 import converter
 from random import choice, choices
 from nb_train import get_key
 
@@ -45,20 +46,20 @@ def generate_from_input(notes):
     measures = []
     m = Measure(time_signature=(4, 4))
 
-    for i in range(len(notes)):
+    for i in range(len(notes, keys)):
         m = Measure(time_signature=(4, 4) if i == 0 else None)
         #0 if quarter note, 1 if half note, 2 is quarter rest, 3 is whole note
         print(i)
         for beat_num in range(4):
             if (i + beat_num) % 4 == 0:
                 if notes[i] == 0:
-                    m.append(Note(pitch_bank[get_key(i)], 1.0))
+                    m.append(Note(pitch_bank[keys[i]], 1.0))
                 elif notes[i] == 1:
-                    m.append(Note(pitch_bank[get_key(i)], 2.0))
+                    m.append(Note(pitch_bank[keys[i]], 2.0))
                 elif notes[i] == 2:
                     m.append(Rest(1.0))
                 elif notes[i] == 3:
-                    m.append(Note(pitch_bank[get_key(i)], 4.0))
+                    m.append(Note(pitch_bank[keys[i]], 4.0))
         measures.append(m)
 
 
