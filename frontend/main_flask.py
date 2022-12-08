@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
 import base64
+import sys
+sys.path.insert(1, "/Users/siya/UIUC/CS 222/course-project-group-27/export_to_xml.py")
 from pycomposer.gancomposable._mxnet.conditional_gan_composer import ConditionalGANComposer
 from logging import getLogger, StreamHandler, NullHandler, DEBUG, ERROR
 import mxnet as mx
@@ -45,6 +47,10 @@ def upload_img():
         # process image here
         note_images = parse_sheet.parse('static/result_files/test.png')
         notes = Classifier.predict(note_images)
+
+        # COMMENTED OUT
+        #export_to_xml.generate_from_input(notes)
+        
         print(notes)
         # return xml file which should be stored in the result_files folder 
         # or else there will be problems downloading it

@@ -32,81 +32,98 @@ def generate_example():
     melody = converter.parse("AlgorithmicExample.musicxml")
     melody.show() # YOU NEED MUSESCORE TO RUN THIS
 
-def generate_from_input(quarter_notes, half_notes, eighth_notes, whole_notes, quarter_rests, half_rests, eighth_rests, whole_rests, sixteenth_rests):
+def generate_from_input(notes):
     score = Score(title="Algorithmically Generated MusicXML", composer="HTMLvis")
     part = Part("Piano") #need to receive instrument name from data
     score.append(part)
 
     # 1 top of staff, 8 bottom of staff
-    pitch_bank = {1 : "f5", 2: "e5", 3: "d5", 4: "c5", 5: "b4", 6: "a4", 7: "g4", 8: "f4"}
+    pitch_bank = {0 : "f5", 1: "e5", 2: "d5", 3: "c5", 4: "b4", 5: "a4", 6: "g4", 7: "f4", 8:"e4"}
 
     # assume treble clef?
 
     measures = []
     m = Measure(time_signature=(4, 4))
 
-    for i in range (len(quarter_notes)):
+    for i in range(len(notes)):
         m = Measure(time_signature=(4, 4) if i == 0 else None)
+        #0 if quarter note, 1 if half note, 2 is quarter rest, 3 is whole note
+        print(i)
         for beat_num in range(4):
             if (i + beat_num) % 4 == 0:
-                m.append(Note(pitch_bank[get_key(i)], 1.0))
+                if notes[i] == 0:
+                    m.append(Note(pitch_bank[get_key(i)], 1.0))
+                elif notes[i] == 1:
+                    m.append(Note(pitch_bank[get_key(i)], 2.0))
+                elif notes[i] == 2:
+                    m.append(Rest(1.0))
+                elif notes[i] == 3:
+                    m.append(Note(pitch_bank[get_key(i)], 4.0))
         measures.append(m)
 
-    for i in range (len(half_notes)):
-        m = Measure(time_signature=(4, 4) if i == 0 else None)
-        for beat_num in range(4):
-            if (i + beat_num) % 4 == 0:
-                m.append(Note(pitch_bank[get_key(i)], 2.0))
-        measures.append(m)
 
-    for i in range (len(eighth_notes)):
-        m = Measure(time_signature=(4, 4) if i == 0 else None)
-        for beat_num in range(4):
-            if (i + beat_num) % 4 == 0:
-                m.append(Note(pitch_bank[get_key(i)], 0.5))
-        measures.append(m)
+    # for i in range (len(quarter_notes)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Note(pitch_bank[get_key(i)], 1.0))
+    #     measures.append(m)
 
-    for i in range (len(whole_notes)):
-        m = Measure(time_signature=(4, 4) if i == 0 else None)
-        for beat_num in range(4):
-            if (i + beat_num) % 4 == 0:
-                m.append(Note(pitch_bank[get_key(i)], 4.0))
-        measures.append(m)
+    # for i in range (len(half_notes)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Note(pitch_bank[get_key(i)], 2.0))
+    #     measures.append(m)
 
-    for i in range (len(quarter_rests)):
-        m = Measure(time_signature=(4, 4) if i == 0 else None)
-        for beat_num in range(4):
-            if (i + beat_num) % 4 == 0:
-                m.append(Rest(1.0))
-        measures.append(m)
+    # for i in range (len(eighth_notes)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Note(pitch_bank[get_key(i)], 0.5))
+    #     measures.append(m)
 
-    for i in range (len(half_rests)):
-        m = Measure(time_signature=(4, 4) if i == 0 else None)
-        for beat_num in range(4):
-            if (i + beat_num) % 4 == 0:
-                m.append(Rest(2.0))
-        measures.append(m)
+    # for i in range (len(whole_notes)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Note(pitch_bank[get_key(i)], 4.0))
+    #     measures.append(m)
 
-    for i in range (len(eighth_rests)):
-        m = Measure(time_signature=(4, 4) if i == 0 else None)
-        for beat_num in range(4):
-            if (i + beat_num) % 4 == 0:
-                m.append(Rest(0.5))
-        measures.append(m)
+    # for i in range (len(quarter_rests)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Rest(1.0))
+    #     measures.append(m)
 
-    for i in range (len(whole_rests)):
-        m = Measure(time_signature=(4, 4) if i == 0 else None)
-        for beat_num in range(4):
-            if (i + beat_num) % 4 == 0:
-                m.append(Rest(4.0))
-        measures.append(m)
+    # for i in range (len(half_rests)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Rest(2.0))
+    #     measures.append(m)
 
-    for i in range (len(sixteenth_rests)):
-        m = Measure(time_signature=(4, 4) if i == 0 else None)
-        for beat_num in range(4):
-            if (i + beat_num) % 4 == 0:
-                m.append(Rest(0.25))
-        measures.append(m)
+    # for i in range (len(eighth_rests)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Rest(0.5))
+    #     measures.append(m)
+
+    # for i in range (len(whole_rests)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Rest(4.0))
+    #     measures.append(m)
+
+    # for i in range (len(sixteenth_rests)):
+    #     m = Measure(time_signature=(4, 4) if i == 0 else None)
+    #     for beat_num in range(4):
+    #         if (i + beat_num) % 4 == 0:
+    #             m.append(Rest(0.25))
+    #     measures.append(m)
 
     part.extend(measures)
 
