@@ -1,8 +1,8 @@
 from pymusicxml import *
 # from music21 import *
-from music21 import converter
+# from music21 import converter
 from random import choice, choices
-from nb_train import get_key
+from modules import nb_train
 
 def generate_example():
     score = Score(title="Algorithmically Generated MusicXML", composer="HTMLvis")
@@ -30,10 +30,10 @@ def generate_example():
     part.extend(measures)
     score.export_to_file("AlgorithmicExample.musicxml")
 
-    melody = converter.parse("AlgorithmicExample.musicxml")
-    melody.show() # YOU NEED MUSESCORE TO RUN THIS
+    # melody = converter.parse("AlgorithmicExample.musicxml")
+    # melody.show() # YOU NEED MUSESCORE TO RUN THIS
 
-def generate_from_input(notes):
+def generate_from_input(notes, keys):
     score = Score(title="Algorithmically Generated MusicXML", composer="HTMLvis")
     part = Part("Piano") #need to receive instrument name from data
     score.append(part)
@@ -46,7 +46,7 @@ def generate_from_input(notes):
     measures = []
     m = Measure(time_signature=(4, 4))
 
-    for i in range(len(notes, keys)):
+    for i in range(len(notes)):
         m = Measure(time_signature=(4, 4) if i == 0 else None)
         #0 if quarter note, 1 if half note, 2 is quarter rest, 3 is whole note
         print(i)
@@ -128,7 +128,7 @@ def generate_from_input(notes):
 
     part.extend(measures)
 
-    score.export_to_file("InputGenerated.musicxml")
+    score.export_to_file("static/result_files/InputGenerated.musicxml")
 
-    melody = converter.parse("InputGenerated.musicxml")
-    melody.show() # YOU NEED MUSESCORE TO RUN THIS
+    # melody = converter.parse("frontend\static\result_files\InputGenerated.musicxml")
+    # melody.show() # YOU NEED MUSESCORE TO RUN THIS

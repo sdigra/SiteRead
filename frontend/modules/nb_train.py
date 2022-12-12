@@ -2,6 +2,8 @@
 # imports important 
 # %%
 import os
+from PIL import Image
+import numpy as np
 import matplotlib.pyplot as plt
 
 def get_key(note):
@@ -25,10 +27,23 @@ def get_key(note):
     # figure out which rows are the staff lines so we can ignore those
     staff_pixels = [0 for i in range(height)] 
 
+    for i in range(height):
+        if(bwnote[i][2] == 0):
+            staff_pixels[i] = 1
 
     for i in range(height):
-        if(bwnote[i][0] == 0):
-            staff_pixels[i] = 1
+        for j in range(2):
+            bwnote[i][j] = 255
+        for j in range(6):
+            bwnote[i][width-1-j] = 255
+
+    # for i in range(height):
+    #     for j in range(width):
+    #         print(str(bwnote[i][j]), end=" ")
+    #     print()
+
+    # for i in staff_pixels:
+    #     print(i)
     
     # looking for left and right pixels of the note
     i = left
@@ -87,6 +102,8 @@ def get_key(note):
 
     return round(y)
 
-# image = Image.open("note_c.png").convert('L')
+# keys = [get_key(np.asarray(i)) for i in note_images]
+# print(keys[0])
+# image = Image.open("noteuno.jpeg").convert('L')
 # pixel_values = np.asarray(image)
 # print("key: " + str(get_key(pixel_values)))

@@ -16,9 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import BernoulliNB
 import math
 # CROPOBJECT_DIR = os.path.join(os.environ['HOME'], './musicma_training_set/data/cropobjects_withstaff')
-CROPOBJECT_DIR = '../musicma_training_set/data/cropobjects_withstaff'
-cropobject_fnames = [os.path.join(CROPOBJECT_DIR, f) for f in os.listdir(CROPOBJECT_DIR)]
-docs = [parse_cropobject_list(f) for f in cropobject_fnames]
+
 
 # Bear in mind that the outlinks are integers, only valid within the same document.
 # Therefore, we define a function per-document, not per-dataset.
@@ -124,6 +122,9 @@ def get_image(cropobjects, margin=1):
     return canvas
 
 def train():
+    CROPOBJECT_DIR = '../musicma_training_set/data/cropobjects_withstaff'
+    cropobject_fnames = [os.path.join(CROPOBJECT_DIR, f) for f in os.listdir(CROPOBJECT_DIR)]
+    docs = [parse_cropobject_list(f) for f in cropobject_fnames]
     notes = [extract_notes_from_doc(cropobjects) for cropobjects in docs]
     qns = list(itertools.chain(*[qn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
     hns = list(itertools.chain(*[hn for qn, hn, en, wn, qr, hr, er, wr, sr in notes]))
