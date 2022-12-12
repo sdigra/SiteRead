@@ -102,8 +102,6 @@ def get_key(note):
 
     return round(y)
 
-note_images = sheet_to_notes('static/result_files/test.png', 8, 4)
-print(get_key(note_images[10]))
 # keys = [get_key(np.asarray(i)) for i in note_images]
 # print(keys[0])
 # image = Image.open("noteuno.jpeg").convert('L')

@@ -23,8 +23,7 @@ def sheet_to_notes(filename, num_bars, measures_per_bar):
                 notes.append(note[int(120-7.5*i):int(300-7.5*i),:])
     return notes
 
-def parse(filename):
-    notes = sheet_to_notes(filename, 8, 4)
+def remove_lines(notes):
     data = np.array(notes)
     images_temp = []
     for i in data:
