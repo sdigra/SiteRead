@@ -6,10 +6,12 @@ import sys
 from logging import getLogger, StreamHandler, NullHandler, DEBUG, ERROR
 # import mxnet as mx
 import torch
+import numpy as np
+import PIL as Image
 from modules import train_model
 from modules import parse_sheet
 # from modules import export_to_xml
-# from modules import nb_train
+from modules import nb_train
 # main flask file to run python programs
 
 # https://flask.palletsprojects.com/en/2.2.x/
@@ -48,15 +50,16 @@ def upload_img():
               f.write(img)
         # process image here
         note_images = parse_sheet.sheet_to_notes('static/result_files/test.png', 8, 4)
-        notes_no_lines = parse_sheet.remove_lines(note_images)
+        # notes_no_lines = parse_sheet.remove_lines(note_images)
         # notes = Classifier.predict(notes_no_lines)
 
         # COMMENTED OUT
         notes = [0,0,0,1,1,1,2,2,2,2,3,3,3,3]
-        # keys = [nb_train.get_key(i) for i in note_images]
+        keys = [nb_train.get_key(np.asarray(i)) for i in note_images]
         # export_to_xml.generate_from_input(notes, keys)
         
         print(notes)
+        print(keys)
         # return xml file which should be stored in the result_files folder 
         # or else there will be problems downloading it
         # when the xml is returned only the file path needs to be returned 
